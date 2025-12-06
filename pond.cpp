@@ -126,7 +126,7 @@ void render() {
         }
     }
 
-    // 1. RENDER POND
+    // Render pond
     for (int x = 0; x < POND_SIZE; x++) {
         for (int z = 0; z < POND_SIZE; z++) {
             
@@ -135,15 +135,14 @@ void render() {
             float h = curr[x][z];
             char ch = ' '; 
 
-            // --- 1. FLOOR DENSITY (Adaptive) ---
+            // Surface background:
             
             // Close up (z < 60): Checkerboard Pattern
-            // (x+z)%2 creates a diagonal weave that is much denser than a grid
+            // (x+z)%2 creates diagonal weave
             if (z < 60) {
                 if ((x + z) % 2 == 0) ch = '.';
             }
             // Mid Distance (z < 100): Standard Grid
-            // Spaced out to prevent moiré patterns
             else if (z < 100) {
                 if (x % 2 == 0 && z % 2 == 0) ch = '.';
             }
@@ -153,10 +152,9 @@ void render() {
             }
 
 
-            // --- 2. WAVE DENSITY (Adaptive) ---
+            // Wave density:
             
-            // If the wave is very far away, we purposely SKIP drawing some pixels.
-            // This prevents the "noisy" look where distant waves look sharper than the floor.
+            // If wave far away skip drawing some pixels.
             if (z > 80 && (x + z) % 2 != 0) {
                 // Skip drawing wave detail here to match floor density
             } 
@@ -175,7 +173,7 @@ void render() {
         }
     }
 
-    // 2. RENDER RAIN
+    // Render rain
     for (const auto &d : drops) {
         if (!d.active) continue;
         if (d.z > 110) continue; 
