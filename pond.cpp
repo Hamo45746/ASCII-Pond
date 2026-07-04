@@ -1,10 +1,10 @@
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <thread>
 #include <chrono>
-#include <string>
+#include <cmath>
 #include <cstdlib>
+#include <iostream>
+#include <string>
+#include <thread>
+#include <vector>
 
 // --- SCREEN SETTINGS ---
 const int SCREEN_WIDTH = 80;
@@ -34,7 +34,6 @@ struct Raindrop {
 std::vector<Raindrop> drops(12);
 
 // --- 3D ENGINE ---
-
 void draw_point(float wx, float wy, float wz, char ch) {
     float rx = wx;
     float ry = wy - CAM_HEIGHT;
@@ -57,7 +56,6 @@ void draw_point(float wx, float wy, float wz, char ch) {
 }
 
 // --- PHYSICS ---
-
 void splash(int cx, int cz, float radius, float force) {
     int r = (int)ceil(radius);
     for (int i = -r; i <= r; i++) {
@@ -65,7 +63,7 @@ void splash(int cx, int cz, float radius, float force) {
             int px = cx + i;
             int pz = cz + j;
             if (px > 1 && px < POND_SIZE - 1 && pz > 1 && pz < POND_SIZE - 1) {
-                float dist = sqrt(i*i + j*j);
+                float dist = sqrt(i * i + j * j);
                 if (dist < radius) {
                     float hump = (cos(dist / radius * 3.14159f) + 1.0f) * 0.5f;
                     curr[px][pz] += force * hump;
@@ -78,11 +76,10 @@ void splash(int cx, int cz, float radius, float force) {
 void update_physics() {
     for (int x = 1; x < POND_SIZE - 1; x++) {
         for (int z = 1; z < POND_SIZE - 1; z++) {
-            float neighbors = curr[x-1][z] + curr[x+1][z] +
-                              curr[x][z-1] + curr[x][z+1];
+            float neighbors = curr[x - 1][z] + curr[x + 1][z] + curr[x][z - 1] + curr[x][z + 1];
 
             float val = (neighbors / 2.0f) - prev[x][z];
-            val = val * 0.92f; // Damping
+            val = val * 0.92f;  // Damping
             prev[x][z] = val;
         }
     }
@@ -90,9 +87,8 @@ void update_physics() {
     curr = prev;
     prev = temp;
 }
-
 void update_rain() {
-    for (auto &d : drops) {
+    for (auto& d : drops) {
         if (!d.active) {
             if (rand() % 100 < 2) {
                 d.y = 80 + (rand() % 40);
@@ -107,8 +103,8 @@ void update_rain() {
         d.y -= d.vy * 0.15f;
 
         if (d.y <= 0) {
-            int gx = (int)(d.x + POND_SIZE/2);
-            int gz = (int)(d.z + POND_SIZE/2);
+            int gx = (int)(d.x + POND_SIZE / 2);
+            int gz = (int)(d.z + POND_SIZE / 2);
 
             splash(gx, gz, 2.0f, 4.0f);
             d.active = false;
@@ -117,10 +113,9 @@ void update_rain() {
 }
 
 // --- RENDER ---
-
 void render() {
-    for(int y=0; y<SCREEN_HEIGHT; y++) {
-        for(int x=0; x<SCREEN_WIDTH; x++) {
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH; x++) {
             screen[y][x] = ' ';
             depth[y][x] = 10000.0f;
         }
@@ -129,7 +124,6 @@ void render() {
     // Render pond
     for (int x = 0; x < POND_SIZE; x++) {
         for (int z = 0; z < POND_SIZE; z++) {
-
             if (z > 130) continue;
 
             float h = curr[x][z];
@@ -150,15 +144,11 @@ void render() {
             else if (z < 130) {
                 if (x % 4 == 0 && z % 4 == 0) ch = '.';
             }
-
-
             // Wave density:
-
             // If wave far away skip drawing some pixels.
             if (z > 80 && (x + z) % 2 != 0) {
                 // Skip drawing wave detail here to match floor density
-            }
-            else {
+            } else {
                 // Standard Wave Logic
                 if (h > 0.2f) ch = '-';
                 if (h > 0.6f) ch = '~';
@@ -168,13 +158,13 @@ void render() {
 
             // Draw
             if (ch != ' ') {
-                draw_point((float)(x - POND_SIZE/2), h, (float)(z - POND_SIZE/2), ch);
+                draw_point((float)(x - POND_SIZE / 2), h, (float)(z - POND_SIZE / 2), ch);
             }
         }
     }
 
     // Render rain
-    for (const auto &d : drops) {
+    for (const auto& d : drops) {
         if (!d.active) continue;
         if (d.z > 110) continue;
 
@@ -188,7 +178,7 @@ void render() {
 
 int main() {
     srand(time(0));
-    for(auto &d : drops) d.active = false;
+    for (auto& d : drops) d.active = false;
 
     std::cout << "\033[2J";
 
